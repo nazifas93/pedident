@@ -162,8 +162,12 @@ export function useDentalCharting() {
           finishCharting();
         }
         break;
-      case '/': // Toggle surface detail mode
-        toggleSurfaceMode();
+      case '/': // Toggle surface detail mode or confirm surfaces
+        if (chartingMode === 'Surface Detail' && selectedSurfaces.length > 0) {
+          confirmSurfaces();
+        } else {
+          toggleSurfaceMode();
+        }
         break;
       case '8': // Mesial surface
         if (chartingMode === 'Surface Detail') {

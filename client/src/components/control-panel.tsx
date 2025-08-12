@@ -115,7 +115,7 @@ export default function ControlPanel({
                 <div>0 - Buccal</div>
                 <div>. - Lingual</div>
                 <div>+ - Occlusal</div>
-                <div>/ - Detail mode</div>
+                <div>/ - Toggle/Confirm</div>
               </div>
             </div>
           </div>

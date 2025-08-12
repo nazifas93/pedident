@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,9 @@ export default function DentalAnalysisDialog({ patient, toothStates }: DentalAna
             <FaBrain className="text-purple-600 mr-2" />
             AI Dental Analysis - {patient.name}
           </DialogTitle>
+          <DialogDescription>
+            Comprehensive clinical analysis including DMFT/DMFS calculations, pattern recognition, and treatment recommendations.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
