@@ -104,18 +104,25 @@ export default function ControlPanel({
               </div>
               <div className="bg-slate-50 rounded p-2">
                 <div className="font-medium text-slate-700">7</div>
-                <div className="text-xs text-slate-600">Next tooth</div>
+                <div className="text-xs text-slate-600">Next/Confirm</div>
               </div>
             </div>
             <div className="mt-4 pt-3 border-t border-slate-200">
-              <div className="text-xs text-slate-500 mb-2">Advanced Controls</div>
+              <div className="text-xs text-slate-500 mb-2">Surface Detail Mode</div>
               <div className="grid grid-cols-2 gap-1 text-xs">
                 <div>8 - Mesial</div>
                 <div>9 - Distal</div>
                 <div>0 - Buccal</div>
                 <div>. - Lingual</div>
                 <div>+ - Occlusal</div>
-                <div>/ - Toggle/Confirm</div>
+                <div>/ - Toggle detail</div>
+              </div>
+              <div className="text-xs text-slate-500 mt-2">
+                1. Press "/" to enter detail mode
+                <br />
+                2. Select surfaces with 8,9,0,.,+
+                <br />
+                3. Press "7" to confirm & continue
               </div>
             </div>
           </div>

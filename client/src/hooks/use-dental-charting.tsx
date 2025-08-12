@@ -107,20 +107,16 @@ export function useDentalCharting() {
   }, []);
 
   const selectSurface = useCallback((toothNumber: string, surface: string) => {
-    console.log('selectSurface called:', { chartingMode, toothNumber, currentTooth, surface });
     if (chartingMode === 'Surface Detail' && toothNumber === currentTooth) {
-      setSelectedSurfaces(prev => {
-        const newSelection = prev.includes(surface) 
+      setSelectedSurfaces(prev => 
+        prev.includes(surface) 
           ? prev.filter(s => s !== surface)
-          : [...prev, surface];
-        console.log('Surface selection updated:', { prev, newSelection, surface });
-        return newSelection;
-      });
+          : [...prev, surface]
+      );
     }
   }, [chartingMode, currentTooth]);
 
   const confirmSurfaces = useCallback(() => {
-    console.log('confirmSurfaces called:', { selectedSurfaces, chartingMode, currentTooth });
     if (selectedSurfaces.length > 0 && chartingMode === 'Surface Detail') {
       const surfaceStates: Record<string, ToothState> = {};
       selectedSurfaces.forEach(surface => {
@@ -130,9 +126,6 @@ export function useDentalCharting() {
       setToothState(currentTooth, 'sound', surfaceStates);
       setSelectedSurfaces([]);
       advanceToNextTooth();
-      console.log('Surfaces confirmed and advanced to next tooth');
-    } else {
-      console.log('confirmSurfaces conditions not met');
     }
   }, [selectedSurfaces, chartingMode, currentTooth, setToothState, advanceToNextTooth]);
 
@@ -159,8 +152,18 @@ export function useDentalCharting() {
       case '6': // Previous tooth
         goToPreviousTooth();
         break;
-      case '7': // Next tooth
-        goToNextTooth();
+      case '7': // Next tooth or confirm surfaces in detail mode
+        if (chartingMode === 'Surface Detail') {
+          if (selectedSurfaces.length > 0) {
+            confirmSurfaces();
+          }
+          // Always toggle back to basic mode and advance
+          setChartingMode('Basic');
+          setSelectedSurfaces([]);
+          advanceToNextTooth();
+        } else {
+          goToNextTooth();
+        }
         break;
       case '1': // Skip to permanent or finish
         if (currentSequence === 'deciduous') {
@@ -169,15 +172,8 @@ export function useDentalCharting() {
           finishCharting();
         }
         break;
-      case '/': // Toggle surface detail mode or confirm surfaces
-        console.log('/ key pressed:', { chartingMode, selectedSurfaces: selectedSurfaces.length });
-        if (chartingMode === 'Surface Detail' && selectedSurfaces.length > 0) {
-          console.log('Confirming surfaces...');
-          confirmSurfaces();
-        } else {
-          console.log('Toggling surface mode...');
-          toggleSurfaceMode();
-        }
+      case '/': // Toggle surface detail mode only
+        toggleSurfaceMode();
         break;
       case '8': // Mesial surface
         if (chartingMode === 'Surface Detail') {
