@@ -1,0 +1,66 @@
+Dental Charting Software Requirements
+
+## Overview
+Create a beautiful dental charting application called "Pedident Dental Charting System" that uses foot pedal input (numpad) for hands-free charting.
+
+## Patient Setup Screen
+- Fields: Name, IC Number, Location (default: "Faculty"), Dentist
+- "Start Charting" button to proceed
+
+## Odontogram Layout
+Display rows of teeth diagrams for:
+1.  20 deciduous teeth (baby teeth) with FDI notation
+2.  32 permanent teeth with FDI notation
+
+Each tooth shows 5 surfaces: mesial, distal, occlusal, lingual, buccal
+
+## Charting Flow
+**Starting sequence:**
+- Begin with deciduous teeth (tooth 55, clockwise to 85)
+- Press 1 to skip to permanent teeth (tooth 18, clockwise to 48)
+- Press 1 again if want to finish charting
+- able mouse navigation to specific tooth if necessary
+
+**Visual feedback:**
+- Active tooth blinks with blue drop shadow
+- Auto-advance to next tooth after charting
+
+## Basic Controls (Single Pedal)
+- 3 = Sound tooth (white)
+- 4 = Missing tooth (deep grey) 
+- 5 = Carious tooth (yellow)
+- - = Fixed prosthesis (blue)
+- 6 = Go back one tooth
+- 7 = Go forward one tooth
+
+## Advanced Controls (Two Pedals - Optional)
+**Surface selection:**
+- 8 = Mesial surface
+- 9 = Distal surface  
+- 0 = Buccal surface
+- . = Lingual surface
+- + = Occlusal surface
+
+**Detailed charting:**
+- / = Enter detailed surface mode
+- Select one or multiple surfaces (turn yellow)
+- / = Confirm and proceed
+
+
+## Export Function
+Auto-generate PDF with odontogram screenshot
+Filename format: [IC Number]_[Patient Name].pdf
+
+## Technical Requirements
+- React + Vite structure
+- Modular, upgradeable codebase
+- Keyboard/mouse for initial setup only
+- Numpad-based foot pedal integration
+- FDI notation system compliance
+
+## Key Features
+- Hands-free operation after setup
+- Mix simple and detailed charting modes
+- Visual tooth state indicators
+- Automatic progression with manual override
+- PDF export with patient identification. Make a modern app for this. intuitive
