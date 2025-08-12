@@ -19,7 +19,7 @@ export default function PatientSetup({ onStartCharting }: PatientSetupProps) {
     name: "",
     icNumber: "",
     location: "Faculty",
-    dentist: "Dr. Sarah Johnson",
+    dentist: "",
   });
 
   const { toast } = useToast();
@@ -121,16 +121,15 @@ export default function PatientSetup({ onStartCharting }: PatientSetupProps) {
               <Label htmlFor="dentist" className="block text-sm font-medium text-slate-700 mb-2">
                 Dentist
               </Label>
-              <Select value={formData.dentist} onValueChange={(value) => handleInputChange("dentist", value)}>
-                <SelectTrigger className="w-full" data-testid="select-dentist">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Dr. Sarah Johnson">Dr. Sarah Johnson</SelectItem>
-                  <SelectItem value="Dr. Michael Chen">Dr. Michael Chen</SelectItem>
-                  <SelectItem value="Dr. Emily Rodriguez">Dr. Emily Rodriguez</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input
+                id="dentist"
+                type="text"
+                value={formData.dentist}
+                onChange={(e) => handleInputChange("dentist", e.target.value)}
+                placeholder="Enter dentist name"
+                className="w-full"
+                data-testid="input-dentist"
+              />
             </div>
           </div>
           

@@ -16,67 +16,67 @@ export async function exportDentalChart(patient: Patient, toothStates: Record<st
   // Header
   pdf.text('Pedident Dental Charting System', 20, 20);
   
-  // Patient Information
-  pdf.setFontSize(14);
+  // Patient Information (left side)
+  pdf.setFontSize(12);
   pdf.setFont('helvetica', 'normal');
   
   const patientInfo = [
     `Patient Name: ${patient.name}`,
     `IC Number: ${patient.icNumber}`,
     `Location: ${patient.location}`,
-    `Dentist: ${patient.dentist}`,
+    `Dentist:`,
     `Date: ${new Date().toLocaleDateString()}`
   ];
   
   patientInfo.forEach((info, index) => {
-    pdf.text(info, 20, 35 + (index * 7));
+    pdf.text(info, 20, 40 + (index * 8));
   });
 
-  // Chart Title
+  // Legend (right side)
+  drawLegend(pdf, 150, 35);
+
+  // Chart Title (centered)
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(16);
-  pdf.text('Dental Chart - Odontogram', 20, 80);
+  pdf.text('DENTAL CHART', 130, 90);
   
   // Deciduous Teeth Section
-  pdf.setFontSize(14);
-  pdf.text('Deciduous Teeth (Baby Teeth)', 20, 95);
+  pdf.setFontSize(12);
+  pdf.setFont('helvetica', 'normal');
+  pdf.text('Deciduous Teeth (Baby Teeth)', 20, 110);
   
   // Upper Deciduous
-  pdf.setFontSize(12);
-  pdf.text('Upper Deciduous', 20, 105);
-  drawToothRow(pdf, ['55', '54', '53', '52', '51', '61', '62', '63', '64', '65'], toothStates, 30, 115);
+  pdf.setFontSize(10);
+  pdf.text('Upper Deciduous', 20, 120);
+  drawToothRow(pdf, ['55', '54', '53', '52', '51', '61', '62', '63', '64', '65'], toothStates, 30, 128);
   
   // Lower Deciduous
-  pdf.text('Lower Deciduous', 20, 135);
-  drawToothRow(pdf, ['85', '84', '83', '82', '81', '71', '72', '73', '74', '75'], toothStates, 30, 145);
+  pdf.text('Lower Deciduous', 20, 145);
+  drawToothRow(pdf, ['85', '84', '83', '82', '81', '71', '72', '73', '74', '75'], toothStates, 30, 153);
   
   // Permanent Teeth Section
-  pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(14);
-  pdf.text('Permanent Teeth', 20, 170);
+  pdf.setFontSize(12);
+  pdf.text('Permanent Teeth', 20, 175);
   
   // Upper Permanent
-  pdf.setFontSize(12);
-  pdf.text('Upper Permanent', 20, 180);
-  drawToothRow(pdf, ['18', '17', '16', '15', '14', '13', '12', '11', '21', '22', '23', '24', '25', '26', '27', '28'], toothStates, 30, 190);
+  pdf.setFontSize(10);
+  pdf.text('Upper Permanent', 20, 185);
+  drawToothRow(pdf, ['18', '17', '16', '15', '14', '13', '12', '11', '21', '22', '23', '24', '25', '26', '27', '28'], toothStates, 30, 193);
   
   // Lower Permanent
-  pdf.text('Lower Permanent', 20, 200);
-  drawToothRow(pdf, ['48', '47', '46', '45', '44', '43', '42', '41', '31', '32', '33', '34', '35', '36', '37', '38'], toothStates, 30, 210);
-
-  // Legend
-  drawLegend(pdf, 200, 80);
+  pdf.text('Lower Permanent', 20, 210);
+  drawToothRow(pdf, ['48', '47', '46', '45', '44', '43', '42', '41', '31', '32', '33', '34', '35', '36', '37', '38'], toothStates, 30, 218);
 
   // Summary
   const summary = generateSummary(toothStates);
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(12);
-  pdf.text('Chart Summary:', 200, 140);
+  pdf.text('Chart Summary:', 150, 140);
   
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(10);
   summary.forEach((line, index) => {
-    pdf.text(line, 200, 150 + (index * 5));
+    pdf.text(line, 150, 150 + (index * 5));
   });
 
   // Save the PDF
@@ -142,7 +142,7 @@ function getStateColor(state?: string) {
 }
 
 function drawLegend(pdf: jsPDF, x: number, y: number) {
-  pdf.setFont('helvetica', 'bold');
+  pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(12);
   pdf.text('Legend:', x, y);
   
@@ -157,15 +157,16 @@ function drawLegend(pdf: jsPDF, x: number, y: number) {
   pdf.setFontSize(10);
   
   legendItems.forEach((item, index) => {
-    const itemY = y + 10 + (index * 8);
+    const itemY = y + 10 + (index * 12);
     const color = getStateColor(item.state);
     
     // Draw colored box
     pdf.setFillColor(color.r, color.g, color.b);
-    pdf.rect(x, itemY, 5, 5, 'FD');
+    pdf.setDrawColor(0, 0, 0);
+    pdf.rect(x, itemY, 8, 6, 'FD');
     
     // Draw label
-    pdf.text(item.label, x + 8, itemY + 3.5);
+    pdf.text(item.label, x + 12, itemY + 4);
   });
 }
 
