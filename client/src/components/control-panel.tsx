@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FaArrowRight, FaFilePdf, FaCheck } from "react-icons/fa";
+import DentalAnalysisDialog from "@/components/dental-analysis-dialog";
 import type { Patient } from "@shared/schema";
+import type { ToothData } from "@/hooks/use-dental-charting";
 
 interface ControlPanelProps {
   currentTooth: string;
@@ -14,6 +16,7 @@ interface ControlPanelProps {
   onToggleSurfaceMode: () => void;
   onConfirmSurfaces: () => void;
   patient: Patient | null;
+  toothStates: Record<string, ToothData>;
 }
 
 export default function ControlPanel({
@@ -26,7 +29,8 @@ export default function ControlPanel({
   onFinishCharting,
   onToggleSurfaceMode,
   onConfirmSurfaces,
-  patient
+  patient,
+  toothStates
 }: ControlPanelProps) {
   
   const surfaces = ['mesial', 'distal', 'buccal', 'lingual', 'occlusal'];
@@ -147,6 +151,8 @@ export default function ControlPanel({
             <FaCheck className="mr-2" />
             Finish & Export PDF
           </Button>
+          
+          <DentalAnalysisDialog patient={patient} toothStates={toothStates} />
         </CardContent>
       </Card>
 

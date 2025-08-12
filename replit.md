@@ -47,6 +47,12 @@ Preferred communication style: Simple, everyday language.
 - **Report Structure**: Comprehensive patient information with visual tooth state representation
 - **Data Persistence**: JSON-based tooth state storage allowing complex surface-level details
 
+### AI Clinical Analysis
+- **DMFT/DMFS Calculation**: Automated calculation of Decayed, Missing, Filled Teeth/Surfaces indexes
+- **Pattern Recognition**: Identification of clinical patterns such as anterior vs posterior caries distribution
+- **Treatment Recommendations**: Evidence-based treatment suggestions including restorative needs, preventive care
+- **Clinical Summary**: Comprehensive analysis with severity assessment and next steps guidance
+
 ## External Dependencies
 
 ### Database and ORM

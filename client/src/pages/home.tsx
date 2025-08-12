@@ -101,6 +101,7 @@ export default function Home() {
                 onToggleSurfaceMode={toggleSurfaceMode}
                 onConfirmSurfaces={confirmSurfaces}
                 patient={currentPatient}
+                toothStates={toothStates}
               />
             </div>
           </div>
