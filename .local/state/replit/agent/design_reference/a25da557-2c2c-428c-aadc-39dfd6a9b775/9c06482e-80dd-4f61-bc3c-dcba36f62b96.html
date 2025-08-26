@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedident Dental Charting System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                fontFamily: {
+                    'inter': ['Inter', 'sans-serif'],
+                },
+                colors: {
+                    'medical-blue': '#2563eb',
+                    'medical-gray': '#64748b',
+                    'healthy-green': '#10b981',
+                    'carious-yellow': '#f59e0b',
+                    'missing-gray': '#6b7280',
+                    'prosthesis-blue': '#3b82f6',
+                },
+                animation: {
+                    'blink': 'blink 1s ease-in-out infinite',
+                    'pulse-blue': 'pulse-blue 2s ease-in-out infinite',
+                }
+            }
+        }
+    };
+    </script>
+    <style>
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            25%, 75% { opacity: 0.3; }
+        }
+        @keyframes pulse-blue {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); }
+            50% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+        }
+        .active-tooth {
+            animation: blink 1s ease-in-out infinite, pulse-blue 2s ease-in-out infinite;
+        }
+        .tooth-surface {
+            transition: all 0.2s ease;
+        }
+        .tooth-surface:hover {
+            transform: scale(1.05);
+        }
+        .surface-selected {
+            background-color: #fbbf24 !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-inter">
+    <!-- @COMPONENT: App [main application container] -->
+    <div class="min-h-screen">
+        <!-- Header -->
+        <!-- @COMPONENT: Header [application header with branding] -->
+        <header class="bg-white shadow-sm border-b border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-tooth text-medical-blue text-2xl"></i>
+                            <h1 class="text-xl font-semibold text-slate-900">Pedident Dental Charting System</h1>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-slate-600" data-bind="currentUser.name">Dr. Sarah Johnson</span>
+                        <button class="text-slate-400 hover:text-slate-600">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- @END_COMPONENT: Header -->
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <!-- Patient Setup Section -->
+            <!-- @COMPONENT: PatientSetup [patient information form] -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 mb-6" id="patientSetup">
+                <div class="px-6 py-4 border-b border-slate-200">
+                    <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+                        <i class="fas fa-user-circle text-medical-blue mr-2"></i>
+                        Patient Information
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Patient Name</label>
+                            <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent" placeholder="Enter patient name" data-bind="patient.name">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">IC Number</label>
+                            <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent" placeholder="Enter IC number" data-bind="patient.icNumber">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Location</label>
+                            <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent bg-slate-50" value="Faculty" data-bind="patient.location">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Dentist</label>
+                            <select class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-medical-blue focus:border-transparent" data-bind="patient.dentist">
+                                <option>Dr. Sarah Johnson</option>
+                                <option>Dr. Michael Chen</option>
+                                <option>Dr. Emily Rodriguez</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <button class="bg-medical-blue text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200" data-event="click:startCharting">
+                            <i class="fas fa-play mr-2"></i>
+                            Start Charting
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: PatientSetup -->
+
+            <!-- Main Charting Interface -->
+            <!-- @COMPONENT: ChartingInterface [main dental charting area] -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6" id="chartingInterface" style="display: none;">
+                
+                <!-- Odontogram -->
+                <!-- @COMPONENT: Odontogram [dental chart display] -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                        <div class="px-6 py-4 border-b border-slate-200">
+                            <h2 class="text-lg font-semibold text-slate-900 flex items-center">
+                                <i class="fas fa-teeth text-medical-blue mr-2"></i>
+                                Dental Chart - Odontogram
+                            </h2>
+                        </div>
+                        <div class="p-6">
+                            
+                            <!-- Deciduous Teeth Section -->
+                            <div class="mb-8">
+                                <h3 class="text-md font-semibold text-slate-700 mb-4 text-center">Deciduous Teeth (Baby Teeth)</h3>
+                                
+                                <!-- Upper Deciduous -->
+                                <div class="mb-6">
+                                    <h4 class="text-sm font-medium text-slate-600 mb-3 text-center">Upper Deciduous</h4>
+                                    <div class="flex justify-center items-center space-x-2">
+                                        <!-- @MAP: upperDeciduousTeeth.map(tooth => ( -->
+                                        <div class="tooth-container" data-tooth="55">
+                                            <div class="text-xs text-center text-slate-500 mb-1">55</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200 active-tooth" data-bind="tooth.state">
+                                                <!-- Tooth surfaces -->
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal" title="Occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial" title="Mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal" title="Distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual" title="Lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal" title="Buccal"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="tooth-container" data-tooth="54">
+                                            <div class="text-xs text-center text-slate-500 mb-1">54</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="53">
+                                            <div class="text-xs text-center text-slate-500 mb-1">53</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="52">
+                                            <div class="text-xs text-center text-slate-500 mb-1">52</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="51">
+                                            <div class="text-xs text-center text-slate-500 mb-1">51</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="61">
+                                            <div class="text-xs text-center text-slate-500 mb-1">61</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="62">
+                                            <div class="text-xs text-center text-slate-500 mb-1">62</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="63">
+                                            <div class="text-xs text-center text-slate-500 mb-1">63</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="64">
+                                            <div class="text-xs text-center text-slate-500 mb-1">64</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="65">
+                                            <div class="text-xs text-center text-slate-500 mb-1">65</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+                                        <!-- @END_MAP )) -->
+                                    </div>
+                                </div>
+
+                                <!-- Lower Deciduous -->
+                                <div>
+                                    <h4 class="text-sm font-medium text-slate-600 mb-3 text-center">Lower Deciduous</h4>
+                                    <div class="flex justify-center items-center space-x-2">
+                                        <!-- Lower deciduous teeth 85-75 -->
+                                        <div class="tooth-container" data-tooth="85">
+                                            <div class="text-xs text-center text-slate-500 mb-1">85</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Additional lower deciduous teeth would continue here -->
+                                        <div class="tooth-container" data-tooth="84">
+                                            <div class="text-xs text-center text-slate-500 mb-1">84</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="83">
+                                            <div class="text-xs text-center text-slate-500 mb-1">83</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="82">
+                                            <div class="text-xs text-center text-slate-500 mb-1">82</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="81">
+                                            <div class="text-xs text-center text-slate-500 mb-1">81</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="71">
+                                            <div class="text-xs text-center text-slate-500 mb-1">71</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="72">
+                                            <div class="text-xs text-center text-slate-500 mb-1">72</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="73">
+                                            <div class="text-xs text-center text-slate-500 mb-1">73</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="74">
+                                            <div class="text-xs text-center text-slate-500 mb-1">74</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="tooth-container" data-tooth="75">
+                                            <div class="text-xs text-center text-slate-500 mb-1">75</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-6 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Permanent Teeth Section -->
+                            <div>
+                                <h3 class="text-md font-semibold text-slate-700 mb-4 text-center">Permanent Teeth</h3>
+                                
+                                <!-- Upper Permanent -->
+                                <div class="mb-6">
+                                    <h4 class="text-sm font-medium text-slate-600 mb-3 text-center">Upper Permanent</h4>
+                                    <div class="flex justify-center items-center space-x-1">
+                                        <!-- Upper permanent teeth 18-28 -->
+                                        <div class="tooth-container" data-tooth="18">
+                                            <div class="text-xs text-center text-slate-500 mb-1">18</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-10 h-14 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-5 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Continue with more permanent teeth... -->
+                                        <div class="tooth-container" data-tooth="17">
+                                            <div class="text-xs text-center text-slate-500 mb-1">17</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-10 h-14 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-5 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Additional teeth would continue here in similar pattern... -->
+                                        <!-- For brevity, showing placeholders for remaining teeth -->
+                                        <div class="flex space-x-1">
+                                            <div class="text-xs text-center text-slate-400">16...11</div>
+                                            <div class="text-xs text-center text-slate-400">21...28</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Lower Permanent -->
+                                <div>
+                                    <h4 class="text-sm font-medium text-slate-600 mb-3 text-center">Lower Permanent</h4>
+                                    <div class="flex justify-center items-center space-x-1">
+                                        <!-- Lower permanent teeth 48-38 -->
+                                        <div class="tooth-container" data-tooth="48">
+                                            <div class="text-xs text-center text-slate-500 mb-1">48</div>
+                                            <div class="tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-10 h-14 relative cursor-pointer hover:border-medical-blue transition-colors duration-200" data-bind="tooth.state">
+                                                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white border border-slate-400 rounded-t tooth-surface" data-surface="occlusal"></div>
+                                                <div class="absolute top-1/2 left-0 transform -translate-y-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="mesial"></div>
+                                                <div class="absolute top-1/2 right-0 transform -translate-y-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="distal"></div>
+                                                <div class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-white border border-slate-400 tooth-surface" data-surface="lingual"></div>
+                                                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-5 bg-white border border-slate-400 tooth-surface" data-surface="buccal"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Additional lower teeth placeholders -->
+                                        <div class="flex space-x-1">
+                                            <div class="text-xs text-center text-slate-400">47...41</div>
+                                            <div class="text-xs text-center text-slate-400">31...38</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Legend -->
+                            <div class="mt-8 flex justify-center">
+                                <div class="bg-slate-50 rounded-lg p-4">
+                                    <h4 class="text-sm font-medium text-slate-700 mb-3 text-center">Legend</h4>
+                                    <div class="flex flex-wrap justify-center gap-4 text-xs">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-white border border-slate-400 rounded"></div>
+                                            <span>Sound</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-carious-yellow border border-slate-400 rounded"></div>
+                                            <span>Carious</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-missing-gray border border-slate-400 rounded"></div>
+                                            <span>Missing</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-prosthesis-blue border border-slate-400 rounded"></div>
+                                            <span>Prosthesis</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: Odontogram -->
+
+                <!-- Control Panel -->
+                <!-- @COMPONENT: ControlPanel [charting controls and status] -->
+                <div class="space-y-6">
+                    
+                    <!-- Current Status -->
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                        <div class="px-4 py-3 border-b border-slate-200">
+                            <h3 class="text-md font-semibold text-slate-900">Current Status</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-slate-600">Active Tooth:</span>
+                                    <span class="text-sm font-medium text-medical-blue" data-bind="currentTooth">55</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-slate-600">Mode:</span>
+                                    <span class="text-sm font-medium text-slate-700" data-bind="chartingMode">Basic</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-slate-600">Progress:</span>
+                                    <span class="text-sm font-medium text-slate-700" data-bind="progress">1/52</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Foot Pedal Controls -->
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                        <div class="px-4 py-3 border-b border-slate-200">
+                            <h3 class="text-md font-semibold text-slate-900">Foot Pedal Controls</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="space-y-3 text-sm">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="bg-slate-50 rounded p-2">
+                                        <div class="font-medium text-slate-700">3</div>
+                                        <div class="text-xs text-slate-600">Sound tooth</div>
+                                    </div>
+                                    <div class="bg-slate-50 rounded p-2">
+                                        <div class="font-medium text-slate-700">4</div>
+                                        <div class="text-xs text-slate-600">Missing tooth</div>
+                                    </div>
+                                    <div class="bg-slate-50 rounded p-2">
+                                        <div class="font-medium text-slate-700">5</div>
+                                        <div class="text-xs text-slate-600">Carious tooth</div>
+                                    </div>
+                                    <div class="bg-slate-50 rounded p-2">
+                                        <div class="font-medium text-slate-700">-</div>
+                                        <div class="text-xs text-slate-600">Prosthesis</div>
+                                    </div>
+                                    <div class="bg-slate-50 rounded p-2">
+                                        <div class="font-medium text-slate-700">6</div>
+                                        <div class="text-xs text-slate-600">Previous tooth</div>
+                                    </div>
+                                    <div class="bg-slate-50 rounded p-2">
+                                        <div class="font-medium text-slate-700">7</div>
+                                        <div class="text-xs text-slate-600">Next tooth</div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-200">
+                                    <div class="text-xs text-slate-500 mb-2">Advanced Controls</div>
+                                    <div class="grid grid-cols-2 gap-1 text-xs">
+                                        <div>8 - Mesial</div>
+                                        <div>9 - Distal</div>
+                                        <div>0 - Buccal</div>
+                                        <div>. - Lingual</div>
+                                        <div>+ - Occlusal</div>
+                                        <div>/ - Detail mode</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                        <div class="px-4 py-3 border-b border-slate-200">
+                            <h3 class="text-md font-semibold text-slate-900">Quick Actions</h3>
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <button class="w-full bg-medical-blue text-white py-2 px-3 rounded text-sm hover:bg-blue-700 transition-colors duration-200" data-event="click:switchToPermanent">
+                                <i class="fas fa-arrow-right mr-2"></i>
+                                Skip to Permanent
+                            </button>
+                            <button class="w-full bg-healthy-green text-white py-2 px-3 rounded text-sm hover:bg-green-700 transition-colors duration-200" data-event="click:exportPDF">
+                                <i class="fas fa-file-pdf mr-2"></i>
+                                Export PDF
+                            </button>
+                            <button class="w-full bg-slate-500 text-white py-2 px-3 rounded text-sm hover:bg-slate-600 transition-colors duration-200" data-event="click:finishCharting">
+                                <i class="fas fa-check mr-2"></i>
+                                Finish Charting
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Surface Selection (Advanced Mode) -->
+                    <div class="bg-white rounded-lg shadow-sm border border-slate-200" id="surfaceSelection" style="display: none;">
+                        <div class="px-4 py-3 border-b border-slate-200">
+                            <h3 class="text-md font-semibold text-slate-900">Surface Selection</h3>
+                        </div>
+                        <div class="p-4">
+                            <div class="text-center mb-3">
+                                <div class="text-sm text-slate-600">Select surfaces for tooth <span data-bind="currentTooth" class="font-medium">55</span></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <button class="bg-slate-100 hover:bg-carious-yellow border border-slate-300 rounded p-2 transition-colors duration-200" data-surface="mesial">
+                                    Mesial
+                                </button>
+                                <button class="bg-slate-100 hover:bg-carious-yellow border border-slate-300 rounded p-2 transition-colors duration-200" data-surface="distal">
+                                    Distal
+                                </button>
+                                <button class="bg-slate-100 hover:bg-carious-yellow border border-slate-300 rounded p-2 transition-colors duration-200" data-surface="buccal">
+                                    Buccal
+                                </button>
+                                <button class="bg-slate-100 hover:bg-carious-yellow border border-slate-300 rounded p-2 transition-colors duration-200" data-surface="lingual">
+                                    Lingual
+                                </button>
+                                <button class="bg-slate-100 hover:bg-carious-yellow border border-slate-300 rounded p-2 col-span-2 transition-colors duration-200" data-surface="occlusal">
+                                    Occlusal
+                                </button>
+                            </div>
+                            <div class="mt-3">
+                                <button class="w-full bg-medical-blue text-white py-2 px-3 rounded text-sm hover:bg-blue-700 transition-colors duration-200" data-event="click:confirmSurfaces">
+                                    Confirm Selection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- @END_COMPONENT: ControlPanel -->
+
+            </div>
+            <!-- @END_COMPONENT: ChartingInterface -->
+
+        </div>
+    </div>
+    <!-- @END_COMPONENT: App -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        (function() {
+            'use strict';
+            
+            // Application state
+            let appState = {
+                currentTooth: '55',
+                chartingMode: 'Basic',
+                progress: 1,
+                totalTeeth: 52,
+                isCharting: false,
+                selectedSurfaces: [],
+                toothStates: {}
+            };
+
+            // Dental charting sequence
+            const deciduousSequence = ['55', '54', '53', '52', '51', '61', '62', '63', '64', '65', '75', '74', '73', '72', '71', '81', '82', '83', '84', '85'];
+            const permanentSequence = ['18', '17', '16', '15', '14', '13', '12', '11', '21', '22', '23', '24', '25', '26', '27', '28', '38', '37', '36', '35', '34', '33', '32', '31', '41', '42', '43', '44', '45', '46', '47', '48'];
+
+            // Initialize application
+            function initializeApp() {
+                const startButton = document.querySelector('[data-event="click:startCharting"]');
+                if (startButton) {
+                    startButton.addEventListener('click', startCharting);
+                }
+
+                // Add numpad event listeners for foot pedal simulation
+                document.addEventListener('keydown', handleFootPedalInput);
+                
+                // Initialize tooth click handlers
+                initializeToothClickHandlers();
+            }
+
+            function startCharting() {
+                const patientSetup = document.getElementById('patientSetup');
+                const chartingInterface = document.getElementById('chartingInterface');
+                
+                if (patientSetup && chartingInterface) {
+                    patientSetup.style.display = 'none';
+                    chartingInterface.style.display = 'grid';
+                    appState.isCharting = true;
+                    updateActiveToothDisplay();
+                }
+            }
+
+            function handleFootPedalInput(event) {
+                if (!appState.isCharting) return;
+
+                const key = event.key;
+                
+                switch(key) {
+                    case '3': // Sound tooth
+                        setToothState(appState.currentTooth, 'sound');
+                        advanceToNextTooth();
+                        break;
+                    case '4': // Missing tooth
+                        setToothState(appState.currentTooth, 'missing');
+                        advanceToNextTooth();
+                        break;
+                    case '5': // Carious tooth
+                        setToothState(appState.currentTooth, 'carious');
+                        advanceToNextTooth();
+                        break;
+                    case '-': // Prosthesis
+                        setToothState(appState.currentTooth, 'prosthesis');
+                        advanceToNextTooth();
+                        break;
+                    case '6': // Previous tooth
+                        goToPreviousTooth();
+                        break;
+                    case '7': // Next tooth
+                        goToNextTooth();
+                        break;
+                    case '1': // Skip to permanent or finish
+                        if (appState.progress <= 20) {
+                            skipToPermanentTeeth();
+                        } else {
+                            finishCharting();
+                        }
+                        break;
+                    case '/': // Toggle surface detail mode
+                        toggleSurfaceMode();
+                        break;
+                }
+
+                event.preventDefault();
+            }
+
+            function setToothState(toothNumber, state) {
+                appState.toothStates[toothNumber] = state;
+                
+                const toothElement = document.querySelector(`[data-tooth="${toothNumber}"] .tooth-diagram`);
+                if (toothElement) {
+                    // Reset classes
+                    toothElement.className = 'tooth-diagram bg-white border-2 border-slate-300 rounded-lg w-12 h-16 relative cursor-pointer hover:border-medical-blue transition-colors duration-200';
+                    
+                    // Apply state-specific styling
+                    switch(state) {
+                        case 'sound':
+                            toothElement.style.backgroundColor = '#ffffff';
+                            break;
+                        case 'missing':
+                            toothElement.style.backgroundColor = '#6b7280';
+                            break;
+                        case 'carious':
+                            toothElement.style.backgroundColor = '#f59e0b';
+                            break;
+                        case 'prosthesis':
+                            toothElement.style.backgroundColor = '#3b82f6';
+                            break;
+                    }
+                }
+            }
+
+            function updateActiveToothDisplay() {
+                // Remove active class from all teeth
+                document.querySelectorAll('.tooth-diagram').forEach(tooth => {
+                    tooth.classList.remove('active-tooth');
+                });
+
+                // Add active class to current tooth
+                const currentToothElement = document.querySelector(`[data-tooth="${appState.currentTooth}"] .tooth-diagram`);
+                if (currentToothElement) {
+                    currentToothElement.classList.add('active-tooth');
+                }
+
+                // Update status display
+                const currentToothSpan = document.querySelector('[data-bind="currentTooth"]');
+                if (currentToothSpan) {
+                    currentToothSpan.textContent = appState.currentTooth;
+                }
+
+                const progressSpan = document.querySelector('[data-bind="progress"]');
+                if (progressSpan) {
+                    progressSpan.textContent = `${appState.progress}/${appState.totalTeeth}`;
+                }
+            }
+
+            function advanceToNextTooth() {
+                if (appState.progress <= 20) {
+                    // Deciduous teeth
+                    const currentIndex = deciduousSequence.indexOf(appState.currentTooth);
+                    if (currentIndex < deciduousSequence.length - 1) {
+                        appState.currentTooth = deciduousSequence[currentIndex + 1];
+                        appState.progress++;
+                    } else {
+                        skipToPermanentTeeth();
+                    }
+                } else {
+                    // Permanent teeth
+                    const currentIndex = permanentSequence.indexOf(appState.currentTooth);
+                    if (currentIndex < permanentSequence.length - 1) {
+                        appState.currentTooth = permanentSequence[currentIndex + 1];
+                        appState.progress++;
+                    } else {
+                        finishCharting();
+                    }
+                }
+                updateActiveToothDisplay();
+            }
+
+            function goToPreviousTooth() {
+                if (appState.progress <= 20 && appState.progress > 1) {
+                    const currentIndex = deciduousSequence.indexOf(appState.currentTooth);
+                    if (currentIndex > 0) {
+                        appState.currentTooth = deciduousSequence[currentIndex - 1];
+                        appState.progress--;
+                    }
+                } else if (appState.progress > 21) {
+                    const currentIndex = permanentSequence.indexOf(appState.currentTooth);
+                    if (currentIndex > 0) {
+                        appState.currentTooth = permanentSequence[currentIndex - 1];
+                        appState.progress--;
+                    }
+                }
+                updateActiveToothDisplay();
+            }
+
+            function goToNextTooth() {
+                advanceToNextTooth();
+            }
+
+            function skipToPermanentTeeth() {
+                appState.currentTooth = permanentSequence[0];
+                appState.progress = 21;
+                updateActiveToothDisplay();
+            }
+
+            function toggleSurfaceMode() {
+                const surfaceSelection = document.getElementById('surfaceSelection');
+                if (surfaceSelection) {
+                    const isVisible = surfaceSelection.style.display !== 'none';
+                    surfaceSelection.style.display = isVisible ? 'none' : 'block';
+                    appState.chartingMode = isVisible ? 'Basic' : 'Surface Detail';
+                    
+                    const modeSpan = document.querySelector('[data-bind="chartingMode"]');
+                    if (modeSpan) {
+                        modeSpan.textContent = appState.chartingMode;
+                    }
+                }
+            }
+
+            function initializeToothClickHandlers() {
+                document.querySelectorAll('.tooth-diagram').forEach(tooth => {
+                    tooth.addEventListener('click', function() {
+                        const toothContainer = this.closest('.tooth-container');
+                        const toothNumber = toothContainer.getAttribute('data-tooth');
+                        
+                        if (toothNumber) {
+                            appState.currentTooth = toothNumber;
+                            // Update progress based on tooth type and position
+                            if (deciduousSequence.includes(toothNumber)) {
+                                appState.progress = deciduousSequence.indexOf(toothNumber) + 1;
+                            } else {
+                                appState.progress = permanentSequence.indexOf(toothNumber) + 21;
+                            }
+                            updateActiveToothDisplay();
+                        }
+                    });
+                });
+            }
+
+            function finishCharting() {
+                alert('Charting completed! Ready to export PDF.');
+                // TODO: Implement PDF export functionality
+            }
+
+            // Initialize the application when DOM is loaded
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        })();
+    </script>
+</body>
+</html>

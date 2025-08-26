@@ -5,6 +5,8 @@ import ControlPanel from "@/components/control-panel";
 import { useDentalCharting } from "@/hooks/use-dental-charting";
 import { FaTooth, FaCog } from "react-icons/fa";
 import type { Patient } from "@shared/schema";
+import MyLogo from "../assets/setaring.png";
+
 
 export default function Home() {
   const [currentPatient, setCurrentPatient] = useState<Patient | null>(null);
@@ -48,7 +50,7 @@ export default function Home() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <FaTooth className="text-medical-blue text-2xl" />
+                <img src={MyLogo} alt="My Logo" className="w-8 h-8" />
                 <h1 className="text-xl font-semibold text-slate-900" data-testid="app-title">
                   Pedident Dental Charting System
                 </h1>
