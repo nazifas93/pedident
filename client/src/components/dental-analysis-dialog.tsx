@@ -8,18 +8,19 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+
 import {
   FaBrain,
   FaChartBar,
   FaExclamationTriangle,
   FaCheckCircle,
 } from "react-icons/fa";
+
 import { analyzeDentalChart } from "@/lib/dental-analysis";
 import type { ToothData } from "@/hooks/use-dental-charting";
 import type { Patient } from "@shared/schema";
@@ -27,11 +28,15 @@ import type { Patient } from "@shared/schema";
 interface DentalAnalysisDialogProps {
   patient: Patient | null;
   toothStates: Record<string, ToothData>;
+  open: boolean;
+  setOpen: (value: boolean) => void;
 }
 
 export default function DentalAnalysisDialog({
   patient,
   toothStates,
+  open,
+  setOpen,
 }: DentalAnalysisDialogProps) {
   if (!patient) return null;
 
@@ -49,10 +54,8 @@ export default function DentalAnalysisDialog({
 
   const dmftSeverity = getDMFTSeverity(analysis.dmft.total);
 
-  // Ref for PDF export
   const reportRef = useRef<HTMLDivElement>(null);
 
-  // PDF Export Function
   const handleExportPDF = async () => {
     if (!reportRef.current) return;
 
@@ -64,7 +67,6 @@ export default function DentalAnalysisDialog({
     const pageHeight = pdf.internal.pageSize.getHeight();
     const margin = 10;
 
-    // --- Header (first page) ---
     pdf.setFontSize(14);
     pdf.text(`Dental Analysis Report`, pageWidth / 2, 15, { align: "center" });
 
@@ -74,25 +76,20 @@ export default function DentalAnalysisDialog({
       align: "right",
     });
 
-    // Convert analysis content into image
     const imgProps = (pdf as any).getImageProperties(imgData);
     const imgWidth = pageWidth - margin * 2;
     const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
     let heightLeft = imgHeight;
-    let position = 35; // push down below header
+    let position = 35;
 
-    // First page
     pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
     heightLeft -= pageHeight - margin * 2;
 
-    // Extra pages if needed
-    let pageNumber = 2;
     while (heightLeft > 0) {
       position = heightLeft - imgHeight + margin + 25;
       pdf.addPage();
 
-      // Header for each new page
       pdf.setFontSize(11);
       pdf.text(`Patient: ${patient?.name}`, margin, 15);
       pdf.text(
@@ -103,25 +100,14 @@ export default function DentalAnalysisDialog({
       );
 
       pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-
       heightLeft -= pageHeight - margin * 2;
-      pageNumber++;
     }
 
     pdf.save(`Dental-Analysis-${patient?.name}.pdf`);
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button
-          className="w-full bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200"
-          data-testid="button-ai-analysis"
-        >
-          <FaBrain className="mr-2" />
-          AI Dental Analysis
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center text-xl font-bold text-slate-900">
@@ -134,10 +120,10 @@ export default function DentalAnalysisDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Wrap all report content for PDF */}
+        {/* CONTENT WRAPPER */}
         <div ref={reportRef} className="p-4 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* DMFT/DMFS Indexes */}
+            {/* CLINICAL INDEXES */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
@@ -153,6 +139,7 @@ export default function DentalAnalysisDialog({
                       {dmftSeverity.label} ({analysis.dmft.total})
                     </Badge>
                   </div>
+
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     <div className="text-center">
                       <div className="font-medium text-red-600">
@@ -160,12 +147,14 @@ export default function DentalAnalysisDialog({
                       </div>
                       <div className="text-slate-600">Decayed</div>
                     </div>
+
                     <div className="text-center">
                       <div className="font-medium text-gray-600">
                         {analysis.dmft.missing}
                       </div>
                       <div className="text-slate-600">Missing</div>
                     </div>
+
                     <div className="text-center">
                       <div className="font-medium text-blue-600">
                         {analysis.dmft.filled}
@@ -182,6 +171,7 @@ export default function DentalAnalysisDialog({
                     <span className="font-semibold">DMFS Index</span>
                     <span className="font-bold">{analysis.dmfs.total}</span>
                   </div>
+
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     <div className="text-center">
                       <div className="font-medium text-red-600">
@@ -189,12 +179,14 @@ export default function DentalAnalysisDialog({
                       </div>
                       <div className="text-slate-600">D-Surfaces</div>
                     </div>
+
                     <div className="text-center">
                       <div className="font-medium text-gray-600">
                         {analysis.dmfs.missing}
                       </div>
                       <div className="text-slate-600">M-Surfaces</div>
                     </div>
+
                     <div className="text-center">
                       <div className="font-medium text-blue-600">
                         {analysis.dmfs.filled}
@@ -206,7 +198,7 @@ export default function DentalAnalysisDialog({
               </CardContent>
             </Card>
 
-            {/* Summary */}
+            {/* SUMMARY */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Chart Summary</CardTitle>
@@ -218,18 +210,21 @@ export default function DentalAnalysisDialog({
                     {analysis.summary.totalTeethCharted}/32
                   </span>
                 </div>
+
                 <div className="flex justify-between">
                   <span>Sound Teeth:</span>
                   <span className="font-semibold text-green-600">
                     {analysis.summary.soundTeeth}
                   </span>
                 </div>
+
                 <div className="flex justify-between">
                   <span>Affected Teeth:</span>
                   <span className="font-semibold text-red-600">
                     {analysis.summary.affectedTeeth}
                   </span>
                 </div>
+
                 <div className="flex justify-between">
                   <span>Completion:</span>
                   <span className="font-semibold">
@@ -239,7 +234,7 @@ export default function DentalAnalysisDialog({
               </CardContent>
             </Card>
 
-            {/* Patterns */}
+            {/* PATTERNS */}
             {analysis.patterns.length > 0 && (
               <Card className="md:col-span-2">
                 <CardHeader>
@@ -252,7 +247,7 @@ export default function DentalAnalysisDialog({
                   <ul className="space-y-2">
                     {analysis.patterns.map((pattern, index) => (
                       <li key={index} className="flex items-start">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3"></div>
                         <span className="text-sm text-slate-700">{pattern}</span>
                       </li>
                     ))}
@@ -261,7 +256,7 @@ export default function DentalAnalysisDialog({
               </Card>
             )}
 
-            {/* Recommendations */}
+            {/* RECOMMENDATIONS */}
             <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
@@ -271,12 +266,10 @@ export default function DentalAnalysisDialog({
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {analysis.recommendations.map((recommendation, index) => (
-                    <li key={index} className="flex items-start">
-                      <div className="w-2 h-2 bg-green-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                      <span className="text-sm text-slate-700">
-                        {recommendation}
-                      </span>
+                  {analysis.recommendations.map((rec, idx) => (
+                    <li key={idx} className="flex items-start">
+                      <div className="w-2 h-2 bg-green-600 rounded-full mt-2 mr-3"></div>
+                      <span className="text-sm text-slate-700">{rec}</span>
                     </li>
                   ))}
                 </ul>
@@ -287,13 +280,12 @@ export default function DentalAnalysisDialog({
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <p className="text-xs text-blue-800">
               <strong>Note:</strong> This AI analysis is for clinical reference
-              only. Professional clinical judgment should always be applied in
-              treatment planning and diagnosis.
+              only. Professional clinical judgment should always be applied.
             </p>
           </div>
         </div>
 
-        {/* Finish & Export button */}
+        {/* FOOTER BUTTON */}
         <div className="mt-6 flex justify-end">
           <Button
             onClick={handleExportPDF}

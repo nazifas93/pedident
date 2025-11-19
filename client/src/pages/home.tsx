@@ -58,7 +58,7 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-slate-600" data-testid="current-user">
-                Dr. Sarah Johnson
+                
               </span>
               <button className="text-slate-400 hover:text-slate-600" data-testid="settings-button">
                 <FaCog />
